@@ -76,14 +76,13 @@ jobs:
           REVISION=`awk '/<revision>[^<]+<\/revision>/{gsub(/<revision>|<\/revision>/,"",$1);print $1;exit;}' ./dubbo/pom.xml`
           echo "version=$REVISION" >> $GITHUB_OUTPUT
           echo "dubbo version: $REVISION"
-
   unit-test-prepare:
     name: " Preparation for Unit Test On ${{ matrix.os }}"
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, windows-latest ]
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
     env:
       ZOOKEEPER_VERSION: 3.7.2
     steps:
@@ -125,7 +124,6 @@ jobs:
           wget -c http://mirror.apache-kr.org/apache/zookeeper/zookeeper-${{ env.ZOOKEEPER_VERSION }}/apache-zookeeper-${{ env.ZOOKEEPER_VERSION }}-bin.tar.gz -O ${{ github.workspace }}/.tmp/zookeeper/apache-zookeeper-bin.tar.gz
           echo "list the downloaded zookeeper binary archive"
           ls -al ${{ github.workspace }}/.tmp/zookeeper/apache-zookeeper-bin.tar.gz
-
   unit-test:
     needs: [build-source, unit-test-prepare]
     name: "Unit Test On ${{ matrix.os }} (JDK: ${{ matrix.jdk }})"
@@ -133,7 +131,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, windows-latest ]
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
         jdk: [ 8, 11, 17, 21 ]
     env:
       DISABLE_FILE_SYSTEM_TEST: true
@@ -164,6 +162,10 @@ jobs:
       - name: "Test with Maven with Integration Tests"
         timeout-minutes: 70
         if: ${{ startsWith( matrix.os, 'ubuntu') }}
+        run: ./mvnw --batch-mode --no-snapshot-updates -e --no-transfer-progress --fail-fast clean test verify -Pjacoco -Dmaven.wagon.httpconnectionManager.ttlSeconds=120 -Dmaven.wagon.http.retryHandler.count=5 -DskipTests=false -DskipIntegrationTests=false -Dcheckstyle.skip=false -Dcheckstyle_unix.skip=false -Drat.skip=false -Dmaven.javadoc.skip=true -DembeddedZookeeperPath=${{ github.workspace }}/.tmp/zookeeper
+      - name: "Test with Maven with Integration Tests"
+        timeout-minutes: 70
+        if: ${{ startsWith( matrix.os, 'macos') }}
         run: ./mvnw --batch-mode --no-snapshot-updates -e --no-transfer-progress --fail-fast clean test verify -Pjacoco -Dmaven.wagon.httpconnectionManager.ttlSeconds=120 -Dmaven.wagon.http.retryHandler.count=5 -DskipTests=false -DskipIntegrationTests=false -Dcheckstyle.skip=false -Dcheckstyle_unix.skip=false -Drat.skip=false -Dmaven.javadoc.skip=true -DembeddedZookeeperPath=${{ github.workspace }}/.tmp/zookeeper
       - name: "Test with Maven without Integration Tests"
         timeout-minutes: 90
@@ -451,7 +453,6 @@ jobs:
         run: |
           cd ${{ github.workspace }}/dubbo-test-tools/dubbo-error-code-inspector
           ../mvnw --batch-mode --no-snapshot-updates -e --no-transfer-progress --fail-fast -T 2C package exec:java -Ddubbo.eci.report-as-error=${DUBBO_ECI_REPORT_AS_ERROR} -Dmaven.test.skip=true -Dmaven.test.skip.exec=true -Ddubbo.eci.path=${{ github.workspace }}/dubbo
-
       - name: "Upload error code inspection result"
         # always() should not be used here, since we don't need to handle the 'canceled' situation.
         if: ${{ success() || failure() }}

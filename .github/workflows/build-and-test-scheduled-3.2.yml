@@ -1,9 +1,6 @@
 name: Build and Test Scheduled On 3.2
 
-on:
-  schedule:
-    - cron: '0 0/6 * * *'
-  workflow_dispatch:
+on: push
 
 permissions:
   contents: read
@@ -66,7 +63,7 @@ jobs:
         run: 7z a ${{ github.workspace }}/checkstyle.zip *checkstyle* -r
       - name: "Upload checkstyle file if failure"
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: "checkstyle-file"
           path: ${{ github.workspace }}/checkstyle.zip
@@ -236,7 +233,7 @@ jobs:
         run: |
           bash ./test/scripts/prepare-test.sh
       - name: "Upload test list"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: samples-test-list
           path: test/jobs
@@ -275,7 +272,7 @@ jobs:
             ${{ runner.os }}-dubbo-snapshot-${{ github.sha }}
             ${{ runner.os }}-dubbo-snapshot-
       - name: "Download test list"
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v3
         with:
           name: samples-test-list
           path: test/jobs/
@@ -295,7 +292,7 @@ jobs:
         run: cd test && bash ./run-tests.sh
       - name: "Upload test result"
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: samples-test-result-${{matrix.jdk}}
           path: test/jobs/*-result*
@@ -314,7 +311,7 @@ jobs:
           repository: 'apache/dubbo-samples'
           ref: master
       - name: "Download test result"
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v3
         with:
           name: samples-test-result-${{matrix.jdk}}
           path: test/jobs/
@@ -334,7 +331,7 @@ jobs:
         run: |
           bash ./test/scripts/prepare-test.sh
       - name: "Upload test list"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: integration-test-list
           path: test/jobs
@@ -373,7 +370,7 @@ jobs:
             ${{ runner.os }}-dubbo-snapshot-${{ github.sha }}
             ${{ runner.os }}-dubbo-snapshot-
       - name: "Download test list"
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v3
         with:
           name: integration-test-list
           path: test/jobs/
@@ -393,7 +390,7 @@ jobs:
         run: cd test && bash ./run-tests.sh
       - name: "Upload test result"
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: integration-test-result-${{matrix.jdk}}
           path: test/jobs/*-result*
@@ -412,7 +409,7 @@ jobs:
           repository: 'apache/dubbo-integration-cases'
           ref: main
       - name: "Download test result"
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v3
         with:
           name: integration-test-result-${{matrix.jdk}}
           path: test/jobs/
@@ -453,7 +450,7 @@ jobs:
       - name: "Upload error code inspection result"
         # always() should not be used here, since we don't need to handle the 'canceled' situation.
         if: ${{ success() || failure() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: "error-inspection-result"
           path: ${{ github.workspace }}/dubbo-test-tools/dubbo-error-code-inspector/error-inspection-result.txt

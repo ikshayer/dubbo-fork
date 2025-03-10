@@ -179,7 +179,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, windows-latest ]
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
         jdk: [ 8, 11, 17, 21 ]
     env:
       DISABLE_FILE_SYSTEM_TEST: true

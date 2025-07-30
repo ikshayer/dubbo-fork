@@ -82,7 +82,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, windows-2-core, macos-latest ]
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
     env:
       ZOOKEEPER_VERSION: 3.6.3
     steps:
@@ -143,7 +143,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, windows-2-core, macos-latest ]
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
         jdk: [ 8, 11, 17, 21 ]
     env:
       DISABLE_FILE_SYSTEM_TEST: true
@@ -191,7 +191,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, windows-2-core, macos-latest ]
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
         jdk: [ 8, 11, 17, 21 ]
     env:
       DISABLE_FILE_SYSTEM_TEST: true
